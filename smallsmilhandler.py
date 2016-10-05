@@ -24,32 +24,38 @@ class SmallSMILHandler(ContentHandler):
 
     def startElement(self, name, attr):
         if name == "root-layout":
-            width = {"width" : attr.get('width', "")}
-            width["height"] = attr.get('height', "")
-            width["background-color"] = attr.get('background-color', "")
-            tagroot = {"root-layout": width}
+            attroot = {"width": attr.get('width', "")}
+            attroot["height"] = attr.get('height', "")
+            attroot["background-color"] = attr.get('background-color', "")
+            tagroot = {"root-layout": attroot}
             self.mytags.append(tagroot)
         elif name == "region":
-            self.id = attr.get('id', "")
-            self.bottom = attr.get('bottom', "")
-            self.left = attr.get('left', "")
-            self.top = attr.get('top', "")
-
+            attregion = {"id": attr.get('id', "")}
+            attregion["bottom"] = attr.get('bottom', "")
+            attregion["left"] = attr.get('left', "")
+            attregion["top"] = attr.get('top', "")
+            attregion["right"] = attr.get('right', "")
+            tagregion = {"region": attregion}
+            self.mytags.append(tagregion)
         elif name == "img":
-            self.region = attr.get('region', "")
-            self.src = attr.get('src', "")
-            self.begin = attr.get('begin', "")
-            self.dur = attr.get('dur', "")
-
+            attrimg = {"region": attr.get('region', "")}
+            attrimg["src"] = attr.get('src', "")
+            attrimg["begin"] = attr.get('begin', "")
+            attrimg["dur"] = attr.get('dur', "")
+            tagimg = {"img": attrimg}
+            self.mytags.append(tagimg)
         elif name == "audio":
-            self.src = attr.get('src', "")
-            self.begin = attr.get('begin', "")
-            self.dur = attr.get('dur', "")
-
+            attraud = {"src": attr.get('src', "")}
+            attraud["begin"] = attr.get('begin', "")
+            attraud["dur"] = attr.get('dur', "")
+            tagaudio = {"audio": attraud}
+            self.mytags.append(tagaudio)
         elif name == "textstream":
-            self.src = attr.get('src', "")
-            self.region = attr.get('region', "")
-    
+            attrtext = {"src": attr.get('src', "")}
+            attrtext["region"] = attr.get('region', "")
+            tagtext = {"textstream": attrtext}
+            self.mytags.append(tagtext)
+
     def get_tags(self):
         return self.mytags
 
@@ -59,5 +65,6 @@ if __name__ == "__main__":
     parser.setContentHandler(sHandler)
     parser.parse(open('karaoke.smil'))
     mytags = sHandler.get_tags()
-    for data in mytags:
-        print(data)
+# TESTING ONLY
+#    for data in mytags:
+#       print(data)
