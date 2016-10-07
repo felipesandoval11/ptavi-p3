@@ -64,7 +64,4 @@ if __name__ == "__main__":
     sHandler = SmallSMILHandler()
     parser.setContentHandler(sHandler)
     parser.parse(open('karaoke.smil'))
-    mytags = sHandler.get_tags()
-# TESTING ONLY
-#    for data in mytags:
-#       print(data)
+
