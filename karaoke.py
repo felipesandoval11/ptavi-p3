@@ -9,16 +9,33 @@ from smallsmilhandler import SmallSMILHandler
 from urllib.request import urlretrieve
 
 
-if __name__ == "__main__":
-    try:
-        attrval = ""
-        datatags = ""
+class KaraokeLocal:
+    def __init__(self, file):
         parser = make_parser()
         sHandler = SmallSMILHandler()
         parser.setContentHandler(sHandler)
-        parser.parse(open(str(sys.argv[1])))
-        mytags = sHandler.get_tags()
-        for data in mytags:
+        parser.parse(open(file))
+        self.mytags = sHandler.get_tags()
+
+    def __str__(self):
+        self.datatags = ""
+        self.attrval = ""
+        for data in self.mytags:
+            for elem, attr in data.items():
+                for k, v in attr.items():
+                    if v != "":         # omitting null values
+                        self.attrval += "\t" + k + "=" + '"' + v + '"'
+                self.datatags += elem + self.attrval + '\n'
+                self.attrval = ""
+        return self.datatags
+
+    def to_json(self, name):
+        self.name = name + ".json"      # file .json = .smil
+        with open(self.name, "w") as outfile:
+            json.dump(self.datatags,  outfile)
+
+    def do_local(self):
+        for data in self.mytags:
             for elem, attr in data.items():
                 for k, v in attr.items():
                     if k == "src" and v != "" and len(v) > 7:  # just in case
@@ -26,12 +43,24 @@ if __name__ == "__main__":
                             urlretrieve(v, v.split("/")[-1])
                             v = v.split("/")[-1]
                     if v != "":         # omitting null values
-                        attrval += "\t" + k + "=" + '"' + v + '"'
-                print(elem + attrval)
-                datatags += elem + attrval
-                attrval = " "
-        filename = sys.argv[1].split(".")[0] + ".json"  # file .json = .smil
-        with open(filename, "w") as outfile:
-            json.dump(datatags,  outfile)
+                        self.attrval += "\t" + k + "=" + '"' + v + '"'
+                self.datatags += elem + self.attrval + '\n'
+                self.attrval = ""
+        return self.datatags
+
+    def do_json(self, name="local"):
+        if name != "local":
+            name = sys.argv[1].split(".")[0]      # file .json = .smil
+        self.to_json(name)
+
+if __name__ == "__main__":
+    try:
+        object = KaraokeLocal(sys.argv[1])
+        object.__str__()
+        print(object)
+        object.do_json(sys.argv[1])
+        object.do_local()
+        object.do_json()
+        print(object)
     except IndexError:
         print("Usage: python3 karaoke.py file.smil.")
