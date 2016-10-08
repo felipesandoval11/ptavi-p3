@@ -16,6 +16,7 @@ class KaraokeLocal:
         parser.setContentHandler(sHandler)
         parser.parse(open(file))
         self.mytags = sHandler.get_tags()
+        self.separate = False
 
     def __str__(self):
         self.datatags = ""
@@ -23,6 +24,10 @@ class KaraokeLocal:
         for data in self.mytags:
             for elem, attr in data.items():
                 for k, v in attr.items():
+                    if self.separate and k == "src" and v != "" and len(v) > 7:
+                        if v[0:7] == "http://":
+                            urlretrieve(v, v.split("/")[-1])
+                            v = v.split("/")[-1]
                     if v != "":         # omitting null values
                         self.attrval += "\t" + k + "=" + '"' + v + '"'
                 self.datatags += elem + self.attrval + '\n'
@@ -35,18 +40,8 @@ class KaraokeLocal:
             json.dump(self.datatags,  outfile)
 
     def do_local(self):
-        for data in self.mytags:
-            for elem, attr in data.items():
-                for k, v in attr.items():
-                    if k == "src" and v != "" and len(v) > 7:  # just in case
-                        if v[0:7] == "http://":
-                            urlretrieve(v, v.split("/")[-1])
-                            v = v.split("/")[-1]
-                    if v != "":         # omitting null values
-                        self.attrval += "\t" + k + "=" + '"' + v + '"'
-                self.datatags += elem + self.attrval + '\n'
-                self.attrval = ""
-        return self.datatags
+        self.separate = True
+        self.__str__()
 
     def do_json(self, name="local"):
         if name != "local":
